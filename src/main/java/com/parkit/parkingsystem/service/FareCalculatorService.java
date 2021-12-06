@@ -21,11 +21,11 @@ public class FareCalculatorService {
         double duration = (double)(outHour - inHour)/ (1000*60*60);
 
         // we applied free half hour in price
-
-        if(duration <0.5)
+        final double FREE_TIME = 0.5;
+        if(duration <FREE_TIME)
             duration = 0;
         else
-            duration = duration -0.5;
+            duration = duration - FREE_TIME;
 
 
 
