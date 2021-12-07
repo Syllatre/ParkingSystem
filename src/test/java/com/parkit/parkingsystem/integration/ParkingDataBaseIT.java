@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -68,8 +69,8 @@ public class ParkingDataBaseIT {
         ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
         parkingService.processExitingVehicle();
         String vehicleRegNumber = inputReaderUtil.readVehicleRegistrationNumber();
-        Assertions.assertNotEquals(null, ticketDAO.getTicket(vehicleRegNumber).getOutTime());
-        Assertions.assertNotEquals(null,ticketDAO.getTicket(vehicleRegNumber).getPrice());
+        assertNotEquals(null, ticketDAO.getTicket(vehicleRegNumber).getPrice());
+        assertNotEquals(null, ticketDAO.getTicket(vehicleRegNumber).getOutTime());
     }
 
 }
