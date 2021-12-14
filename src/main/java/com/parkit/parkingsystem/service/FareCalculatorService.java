@@ -1,6 +1,7 @@
 package com.parkit.parkingsystem.service;
 
 import com.parkit.parkingsystem.constants.Fare;
+import com.parkit.parkingsystem.dao.TicketDAO;
 import com.parkit.parkingsystem.model.Ticket;
 
 public class FareCalculatorService {
@@ -9,10 +10,19 @@ public class FareCalculatorService {
         if( (ticket.getOutTime() == null) || (ticket.getOutTime().before(ticket.getInTime())) ){
             throw new IllegalArgumentException("Out time provided is incorrect:"+ticket.getOutTime().toString());
         }
+
+        TicketDAO recurringVehicle = new TicketDAO();
+        boolean recurringRegNumber = recurringVehicle.isRecurringVehicle(ticket.getVehicleRegNumber());
+        if (recurringRegNumber){
+            ticket.setDiscount(0.95);
+        }
+        else{
+            ticket.setDiscount(1);
+        }
+
         /** we used getTime to transform time in milliseconds and transform it another
          * time in hour
          */
-
 
         long inHour = ticket.getInTime().getTime();
         long outHour = ticket.getOutTime().getTime();
