@@ -13,6 +13,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -98,7 +99,6 @@
                     </dependency>
                 </dependencies>
                 <configuration>
-                    <argLine>${surefire.jacoco.args}</argLine>
                     <excludes>
                         <exclude>**/*IT.java</exclude>
                     </excludes>
@@ -124,28 +124,12 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.7</version>
+                <version>0.8.5</version>
                 <executions>
                     <execution>
-                        <id>before-unit-test-execution</id>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
-                        <configuration>
-                            <destFile>${project.build.directory}/jacoco-output/jacoco-unit-tests.exec</destFile>
-                            <propertyName>surefire.jacoco.args</propertyName>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>after-unit-test-execution</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                        <configuration>
-                            <dataFile>${project.build.directory}/jacoco-output/jacoco-unit-tests.exec</dataFile>
-                            <outputDirectory>${project.reporting.outputDirectory}/jacoco-unit-test-coverage-report</outputDirectory>
-                        </configuration>
                     </execution>
                     <execution>
                         <id>jacoco-report</id>

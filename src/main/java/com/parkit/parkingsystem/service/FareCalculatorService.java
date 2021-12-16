@@ -5,20 +5,23 @@ import com.parkit.parkingsystem.dao.TicketDAO;
 import com.parkit.parkingsystem.model.Ticket;
 
 public class FareCalculatorService {
+    TicketDAO recurringVehicle;
+
+    public FareCalculatorService(TicketDAO recurringVehicle) {
+        this.recurringVehicle = recurringVehicle;
+    }
 
     public void calculateFare(Ticket ticket){
         if( (ticket.getOutTime() == null) || (ticket.getOutTime().before(ticket.getInTime())) ){
             throw new IllegalArgumentException("Out time provided is incorrect:"+ticket.getOutTime().toString());
         }
 
-        TicketDAO recurringVehicle = new TicketDAO();
         boolean recurringRegNumber = recurringVehicle.isRecurringVehicle(ticket.getVehicleRegNumber());
+        double discount = 1;
         if (recurringRegNumber){
-            ticket.setDiscount(0.95);
+            discount =0.95;
         }
-        else{
-            ticket.setDiscount(1);
-        }
+
 
         /** we used getTime to transform time in milliseconds and transform it another
          * time in hour
@@ -39,11 +42,11 @@ public class FareCalculatorService {
 
         switch (ticket.getParkingSpot().getParkingType()){
             case CAR: {
-                ticket.setPrice((double)Math.round(duration * Fare.CAR_RATE_PER_HOUR * ticket.getDiscount()*100)/100);
+                ticket.setPrice((double)Math.round(duration * Fare.CAR_RATE_PER_HOUR * discount*100)/100);
                 break;
             }
             case BIKE: {
-               ticket.setPrice((double)Math.round(duration * Fare.BIKE_RATE_PER_HOUR * ticket.getDiscount()*100)/100);
+               ticket.setPrice((double)Math.round(duration * Fare.BIKE_RATE_PER_HOUR * discount*100)/100);
                 break;
             }
             default: throw new IllegalArgumentException("Unknown Parking Type");
