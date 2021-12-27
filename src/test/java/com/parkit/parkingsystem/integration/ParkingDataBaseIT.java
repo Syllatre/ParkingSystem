@@ -12,10 +12,13 @@ import com.parkit.parkingsystem.service.ParkingService;
 import com.parkit.parkingsystem.util.InputReaderUtil;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Date;
+import java.util.stream.Stream;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
@@ -30,6 +33,7 @@ public class ParkingDataBaseIT {
     private static TicketDAO ticketDAO;
     private static DataBasePrepareService dataBasePrepareService;
     private static FareCalculatorService fareCalculatorService;
+    private  Date outTime;
 
     @Mock
     private static InputReaderUtil inputReaderUtil;
@@ -42,6 +46,7 @@ public class ParkingDataBaseIT {
         ticketDAO.dataBaseConfig = dataBaseTestConfig;
         dataBasePrepareService = new DataBasePrepareService();
         fareCalculatorService = new FareCalculatorService(ticketDAO);
+
     }
 
     @BeforeEach
@@ -69,37 +74,29 @@ public class ParkingDataBaseIT {
         assertFalse(parkingSpot.isAvailable());
     }
 
-    @Test
-    public void testParkingLotExit() throws Exception {
+    @ParameterizedTest
+    @MethodSource("exitTime")
+    public void testParkingLotExit( Date outTime) throws Exception {
+        outTime.setTime(System.currentTimeMillis() + (60 * 60 * 1000));
         testParkingACar();
         ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
+        parkingService.processExitingVehicle();
         String vehicleRegNumber = inputReaderUtil.readVehicleRegistrationNumber();
-        try{
-
-            Ticket ticket = ticketDAO.getTicket(vehicleRegNumber);
-            Date outTime = new Date();
-            outTime.setTime( System.currentTimeMillis() + (  60 * 60 * 1000) );
-            ticket.setOutTime(outTime);
-            fareCalculatorService.calculateFare(ticket);
-            if(ticketDAO.updateTicket(ticket)) {
-                ParkingSpot parkingSpot = ticket.getParkingSpot();
-                parkingSpot.setAvailable(true);
-                parkingSpotDAO.updateParking(parkingSpot);
-                System.out.println("Please pay the parking fare:" + ticket.getPrice());
-                System.out.println("Recorded out-time for vehicle number:" + ticket.getVehicleRegNumber() + " is:" + outTime);
-            }else{
-                System.out.println("Unable to update ticket information. Error occurred");
-            }
-        }catch(Exception e){
-        }
         assertNotEquals(null, ticketDAO.getTicket(vehicleRegNumber).getPrice());
         assertNotEquals(null, ticketDAO.getTicket(vehicleRegNumber).getOutTime());
+    }
+    static Stream<Date> exitTime() {
+        Date outTime = new Date();
+        outTime.setTime( System.currentTimeMillis() + (  60 * 60 * 1000) );
+        return Stream.of(outTime);
     }
 
     @Test
     public void testRecurringVehicle() throws Exception {
         testParkingACar();
-        testParkingLotExit();
+        Date outTime = new Date();
+        outTime.setTime( System.currentTimeMillis() + (  60 * 60 * 1000) );
+        testParkingLotExit(outTime);
         testParkingACar();
         String vehicleRegNumber = inputReaderUtil.readVehicleRegistrationNumber();
         assertEquals(true, ticketDAO.isRecurringVehicle(vehicleRegNumber));
