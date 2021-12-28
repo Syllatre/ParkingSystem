@@ -85,7 +85,7 @@ public class ParkingDataBaseIT {
         assertNotEquals(null, ticketDAO.getTicket(vehicleRegNumber).getPrice());
         assertNotEquals(null, ticketDAO.getTicket(vehicleRegNumber).getOutTime());
     }
-    static Stream<Date> exitTime() {
+    public static Stream<Date> exitTime() {
         Date outTime = new Date();
         outTime.setTime( System.currentTimeMillis() + (  60 * 60 * 1000) );
         return Stream.of(outTime);
