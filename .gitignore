@@ -1,7 +1,6 @@
 # Default ignored files
 /shelf/
-/.idea/workspace.xml
+/.idea/
 /target/
 /parking-system.iml
 /.gitignore
-/replay_pid8184.log
