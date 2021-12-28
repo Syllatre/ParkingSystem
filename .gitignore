@@ -2,4 +2,6 @@
 /shelf/
 /.idea/workspace.xml
 /target/
-
+/parking-system.iml
+/.gitignore
+/replay_pid8184.log
