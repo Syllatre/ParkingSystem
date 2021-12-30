@@ -10,6 +10,7 @@ import com.parkit.parkingsystem.model.Ticket;
 import com.parkit.parkingsystem.service.FareCalculatorService;
 import com.parkit.parkingsystem.service.ParkingService;
 import com.parkit.parkingsystem.util.InputReaderUtil;
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,8 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Date;
 import java.util.stream.Stream;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.Mockito.when;
 
@@ -74,32 +74,35 @@ public class ParkingDataBaseIT {
         assertFalse(parkingSpot.isAvailable());
     }
 
-    @ParameterizedTest
-    @MethodSource("exitTime")
-    public void testParkingLotExit( Date outTime) throws Exception {
-        outTime.setTime(System.currentTimeMillis() + (60 * 60 * 1000));
+    @Test
+    public void testParkingLotExit() throws Exception {
         testParkingACar();
         ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
-        parkingService.processExitingVehicle();
-        String vehicleRegNumber = inputReaderUtil.readVehicleRegistrationNumber();
-        assertNotEquals(null, ticketDAO.getTicket(vehicleRegNumber).getPrice());
-        assertNotEquals(null, ticketDAO.getTicket(vehicleRegNumber).getOutTime());
-    }
-    public static Stream<Date> exitTime() {
         Date outTime = new Date();
         outTime.setTime( System.currentTimeMillis() + (  60 * 60 * 1000) );
-        return Stream.of(outTime);
+        parkingService.processExitingVehicle(outTime);
+        String vehicleRegNumber = inputReaderUtil.readVehicleRegistrationNumber();
+        assertNotEquals(outTime, ticketDAO.getTicket(vehicleRegNumber).getPrice());
+        assertNotEquals(null ,ticketDAO.getTicket(vehicleRegNumber).getOutTime());
     }
+
 
     @Test
     public void testRecurringVehicle() throws Exception {
         testParkingACar();
-        Date outTime = new Date();
-        outTime.setTime( System.currentTimeMillis() + (  60 * 60 * 1000) );
-        testParkingLotExit(outTime);
+        testParkingLotExit();
         testParkingACar();
         String vehicleRegNumber = inputReaderUtil.readVehicleRegistrationNumber();
         assertEquals(true, ticketDAO.isRecurringVehicle(vehicleRegNumber));
+
+    }
+
+    @Test
+    public void vehicleAlreadyInside() throws Exception {
+        testParkingACar();
+        testParkingACar();
+        String vehicleRegNumber = inputReaderUtil.readVehicleRegistrationNumber();
+        assertEquals(true, ticketDAO.inside(vehicleRegNumber));
 
     }
 
