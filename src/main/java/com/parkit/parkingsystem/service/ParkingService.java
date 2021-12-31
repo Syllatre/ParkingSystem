@@ -38,11 +38,17 @@ public class ParkingService {
                 if (recurringVehicle && carInside == false) {
                     System.out.println("Welcome Back");
                 }
-
+                int numberOfTest = 1;
                 if(carInside) {
                     while (carInside) {
                         System.out.println("This vehicle is already in park");
+                        System.out.println("You have "+(3-numberOfTest)+" more attempt");
                         vehicleRegNumber = getVehicleRegNumber();
+                        numberOfTest += 1;
+                        if (numberOfTest == 3){
+                            System.out.println("The number of tests is reached.Try again");
+                            return;
+                        }
                         if (ticketDAO.inside(vehicleRegNumber) == false) {
                             carInside = false;
                         }

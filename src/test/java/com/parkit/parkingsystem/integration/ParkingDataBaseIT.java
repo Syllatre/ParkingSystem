@@ -18,6 +18,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.stream.Stream;
 
@@ -82,8 +83,11 @@ public class ParkingDataBaseIT {
         outTime.setTime( System.currentTimeMillis() + (  60 * 60 * 1000) );
         parkingService.processExitingVehicle(outTime);
         String vehicleRegNumber = inputReaderUtil.readVehicleRegistrationNumber();
-        assertNotEquals(outTime, ticketDAO.getTicket(vehicleRegNumber).getPrice());
-        assertNotEquals(null ,ticketDAO.getTicket(vehicleRegNumber).getOutTime());
+        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.0");
+        String hourExpected = sdfDate.format(outTime);
+        String hourInDataBase = sdfDate.format(ticketDAO.getTicket(vehicleRegNumber).getOutTime());
+        assertNotEquals(null, ticketDAO.getTicket(vehicleRegNumber).getPrice());
+        assertEquals(hourExpected ,hourInDataBase);
     }
 
 
@@ -93,8 +97,7 @@ public class ParkingDataBaseIT {
         testParkingLotExit();
         testParkingACar();
         String vehicleRegNumber = inputReaderUtil.readVehicleRegistrationNumber();
-        assertEquals(true, ticketDAO.isRecurringVehicle(vehicleRegNumber));
-
+        assertTrue(ticketDAO.isRecurringVehicle(vehicleRegNumber));
     }
 
     @Test
@@ -102,8 +105,7 @@ public class ParkingDataBaseIT {
         testParkingACar();
         testParkingACar();
         String vehicleRegNumber = inputReaderUtil.readVehicleRegistrationNumber();
-        assertEquals(true, ticketDAO.inside(vehicleRegNumber));
-
+        assertTrue(ticketDAO.inside(vehicleRegNumber));
     }
 
 }
