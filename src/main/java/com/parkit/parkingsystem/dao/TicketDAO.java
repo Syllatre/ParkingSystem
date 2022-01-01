@@ -68,9 +68,13 @@ public class TicketDAO {
             return ticket;
         }
     }
+    private int recurringVehicle = 0;
+
+    public int onePassOrMore(){
+        return recurringVehicle;
+    }
     public boolean isRecurringVehicle (String vehicleRegNumber) {
         Connection con = null;
-        int recurringVehicle = 0;
         try {
             con = dataBaseConfig.getConnection();
             PreparedStatement ps = con.prepareStatement(DBConstants.RECURRING_VEHICLE);
@@ -86,7 +90,7 @@ public class TicketDAO {
             logger.error("Error fetching next available slot", ex);
         } finally {
             dataBaseConfig.closeConnection(con);
-            return recurringVehicle >= 1 ? true : false;
+            return recurringVehicle > 1 ? true : false;
         }
     }
 

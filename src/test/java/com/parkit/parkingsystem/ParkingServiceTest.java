@@ -57,5 +57,4 @@ public class ParkingServiceTest {
         parkingService.processExitingVehicle(new Date());
         verify(parkingSpotDAO, Mockito.times(1)).updateParking(any(ParkingSpot.class));
     }
-
 }

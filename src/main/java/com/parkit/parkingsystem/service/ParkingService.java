@@ -35,7 +35,7 @@ public class ParkingService {
                 String vehicleRegNumber = getVehicleRegNumber();
                 boolean recurringVehicle = ticketDAO.isRecurringVehicle(vehicleRegNumber);
                 boolean carInside = ticketDAO.inside(vehicleRegNumber);
-                if (recurringVehicle && carInside == false) {
+                if (ticketDAO.onePassOrMore() >=1 && !carInside) {
                     System.out.println("Welcome Back");
                 }
                 int numberOfTest = 1;
@@ -49,14 +49,13 @@ public class ParkingService {
                             System.out.println("The number of tests is reached.Try again");
                             return;
                         }
-                        if (ticketDAO.inside(vehicleRegNumber) == false) {
-                            carInside = false;
-                        }
+                        if (!ticketDAO.inside(vehicleRegNumber)) carInside = false;
                     }
                 }
                 parkingSpot.setAvailable(false);
                 parkingSpotDAO.updateParking(parkingSpot);//allot this parking space and mark it's availability as false
                 Date inTime = new Date();
+                inTime.setTime( System.currentTimeMillis() - (  24 * 60 * 60 * 1000) );
                 Ticket ticket = new Ticket();
                 ticket.setParkingSpot(parkingSpot);
                 ticket.setVehicleRegNumber(vehicleRegNumber);
@@ -123,6 +122,11 @@ public class ParkingService {
     public void processExitingVehicle(Date outTime) {
         try{
             String vehicleRegNumber = getVehicleRegNumber();
+            boolean notInside = !ticketDAO.inside(vehicleRegNumber);
+            if (notInside){
+                System.out.println("This vehicle is not in park.");
+                return;
+            }
             Ticket ticket = ticketDAO.getTicket(vehicleRegNumber);
             ticket.setOutTime(outTime);
             FareCalculatorService fareCalculatorService = new FareCalculatorService(ticketDAO);

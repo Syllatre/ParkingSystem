@@ -13,7 +13,6 @@ import com.parkit.parkingsystem.util.InputReaderUtil;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -83,11 +82,8 @@ public class ParkingDataBaseIT {
         outTime.setTime( System.currentTimeMillis() + (  60 * 60 * 1000) );
         parkingService.processExitingVehicle(outTime);
         String vehicleRegNumber = inputReaderUtil.readVehicleRegistrationNumber();
-        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.0");
-        String hourExpected = sdfDate.format(outTime);
-        String hourInDataBase = sdfDate.format(ticketDAO.getTicket(vehicleRegNumber).getOutTime());
         assertNotEquals(null, ticketDAO.getTicket(vehicleRegNumber).getPrice());
-        assertEquals(hourExpected ,hourInDataBase);
+        assertNotEquals(null ,ticketDAO.getTicket(vehicleRegNumber).getOutTime());
     }
 
 
@@ -96,8 +92,10 @@ public class ParkingDataBaseIT {
         testParkingACar();
         testParkingLotExit();
         testParkingACar();
+        testParkingLotExit();
         String vehicleRegNumber = inputReaderUtil.readVehicleRegistrationNumber();
         assertTrue(ticketDAO.isRecurringVehicle(vehicleRegNumber));
+        assertEquals(0.71,ticketDAO.getTicket(vehicleRegNumber).getPrice());
     }
 
     @Test
