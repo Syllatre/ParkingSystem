@@ -105,11 +105,6 @@ public class ParkingService {
     public void processExitingVehicle(Date outTime) {
         try{
             String vehicleRegNumber = getVehicleRegNumber();
-            boolean notInside = !ticketDAO.inside(vehicleRegNumber);
-            if (notInside){
-                System.out.println("This vehicle is not in park.");
-                return;
-            }
             Ticket ticket = ticketDAO.getTicket(vehicleRegNumber);
             ticket.setOutTime(outTime);
             FareCalculatorService fareCalculatorService = new FareCalculatorService(ticketDAO);
