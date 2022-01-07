@@ -94,6 +94,7 @@ public class ParkingDataBaseIT {
         testParkingACar();
         testParkingLotExit();
         String vehicleRegNumber = inputReaderUtil.readVehicleRegistrationNumber();
+        Date inTime = new Date();
         assertTrue(ticketDAO.isRecurringVehicle(vehicleRegNumber));
         assertEquals(0.71,ticketDAO.getTicket(vehicleRegNumber).getPrice());
     }

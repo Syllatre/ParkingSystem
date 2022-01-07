@@ -14,10 +14,6 @@ import java.util.Date;
 public class ParkingService {
 
     private static final Logger logger = LogManager.getLogger("ParkingService");
-
-
-
-
     private final InputReaderUtil inputReaderUtil;
     private final ParkingSpotDAO parkingSpotDAO;
     private final TicketDAO ticketDAO;
@@ -33,29 +29,18 @@ public class ParkingService {
             ParkingSpot parkingSpot = getNextParkingNumberIfAvailable();
             if (parkingSpot != null && parkingSpot.getId() > 0) {
                 String vehicleRegNumber = getVehicleRegNumber();
+                Date inTime = new Date();
                 boolean recurringVehicle = ticketDAO.isRecurringVehicle(vehicleRegNumber);
                 boolean carInside = ticketDAO.inside(vehicleRegNumber);
-                if (ticketDAO.onePassOrMore() >=1 && !carInside) {
+                if (recurringVehicle) {
                     System.out.println("Welcome Back");
                 }
-                int numberOfTest = 1;
                 if(carInside) {
-                    while (carInside) {
-                        System.out.println("This vehicle is already in park");
-                        System.out.println("You have "+(3-numberOfTest)+" more attempt");
-                        vehicleRegNumber = getVehicleRegNumber();
-                        numberOfTest += 1;
-                        if (numberOfTest == 3){
-                            System.out.println("The number of tests is reached.Try again");
-                            return;
-                        }
-                        if (!ticketDAO.inside(vehicleRegNumber)) carInside = false;
-                    }
+                    System.out.println("This vehicle is already in park");
+                    return;
                 }
                 parkingSpot.setAvailable(false);
-                parkingSpotDAO.updateParking(parkingSpot);//allot this parking space and mark it's availability as false
-                Date inTime = new Date();
-                inTime.setTime( System.currentTimeMillis() - (  24 * 60 * 60 * 1000) );
+                parkingSpotDAO.updateParking(parkingSpot);
                 Ticket ticket = new Ticket();
                 ticket.setParkingSpot(parkingSpot);
                 ticket.setVehicleRegNumber(vehicleRegNumber);
@@ -73,8 +58,6 @@ public class ParkingService {
             logger.error("Unable to process incoming vehicle", e);
         }
     }
-
-
 
     private String getVehicleRegNumber() {
         System.out.println("Please type the vehicle registration number and press enter key");

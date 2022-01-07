@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
+import java.util.Date;
 
 public class TicketDAO {
 
@@ -68,12 +69,11 @@ public class TicketDAO {
             return ticket;
         }
     }
-    private int recurringVehicle = 0;
 
-    public int onePassOrMore(){
-        return recurringVehicle;
-    }
+
+
     public boolean isRecurringVehicle (String vehicleRegNumber) {
+        int  recurringVehicle = 0;
         Connection con = null;
         try {
             con = dataBaseConfig.getConnection();
@@ -90,8 +90,9 @@ public class TicketDAO {
             logger.error("Error fetching next available slot", ex);
         } finally {
             dataBaseConfig.closeConnection(con);
-            return recurringVehicle > 1 ? true : false;
+
         }
+        return recurringVehicle >= 1 ? true : false;
     }
 
     public boolean inside (String vehicleRegNumber) {
@@ -112,8 +113,8 @@ public class TicketDAO {
             logger.error("Error fetching next available slot", ex);
         } finally {
             dataBaseConfig.closeConnection(con);
-            return insidePark > 0 ? true : false;
         }
+        return insidePark > 0 ? true : false;
     }
 
     public boolean updateTicket(Ticket ticket) {
