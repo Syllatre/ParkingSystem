@@ -6,6 +6,8 @@ import com.parkit.parkingsystem.util.InputReaderUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Date;
+
 public class InteractiveShell {
 
     private static final Logger logger = LogManager.getLogger("InteractiveShell");
@@ -29,7 +31,7 @@ public class InteractiveShell {
                     break;
                 }
                 case 2: {
-                    parkingService.processExitingVehicle();
+                    parkingService.processExitingVehicle(new Date());
                     break;
                 }
                 case 3: {

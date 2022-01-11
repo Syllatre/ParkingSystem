@@ -1,6 +1,6 @@
 # Default ignored files
 /shelf/
-<<<<<<< HEAD:.idea/.gitignore
-/workspace.xml
+/.idea/
 /target/
-
+/parking-system.iml
+/.gitignore

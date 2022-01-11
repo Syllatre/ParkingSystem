@@ -78,6 +78,7 @@ public class FareCalculatorServiceTest {
         ticket.setOutTime(outTime);
         ticket.setParkingSpot(parkingSpot);
         ticket.setVehicleRegNumber("fdfdf");
+
         when(ticketDAO.isRecurringVehicle(anyString())).thenReturn(true);
         fareCalculatorService.calculateFare(ticket);
         assertEquals(ticket.getPrice(),0.48); //we applied free half hour
