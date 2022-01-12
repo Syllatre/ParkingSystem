@@ -2,4 +2,10 @@
     <Match>
         <Bug pattern="DMI_CONSTANT_DB_PASSWORD"/>
     </Match>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
 </FindBugsFilter>
