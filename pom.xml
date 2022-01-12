@@ -79,6 +79,23 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>4.5.2.0</version>
+                <configuration>
+                    <excludeFilterFile>spotbugs-security-exclude.xml</excludeFilterFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
