@@ -33,7 +33,7 @@ public class ParkingService {
                 boolean recurringVehicle = ticketDAO.isRecurringVehicle(vehicleRegNumber);
                 boolean carInside = ticketDAO.inside(vehicleRegNumber);
                 if (recurringVehicle) {
-                    System.out.println("Welcome Back");
+                    System.out.println("Welcome back! As a recurring user of our parking lot, you'll benefit from a 5% discount.");
                 }
                 if(carInside) {
                     System.out.println("This vehicle is already in park");
@@ -101,7 +101,9 @@ public class ParkingService {
             }
         }
     }
-
+ public void processExitingVehicle(){
+        processExitingVehicle(new Date());
+    }
     public void processExitingVehicle(Date outTime) {
         try{
             String vehicleRegNumber = getVehicleRegNumber();
