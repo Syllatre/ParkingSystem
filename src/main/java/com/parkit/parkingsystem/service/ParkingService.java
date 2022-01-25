@@ -32,12 +32,12 @@ public class ParkingService {
                 Date inTime = new Date();
                 boolean recurringVehicle = ticketDAO.isRecurringVehicle(vehicleRegNumber);
                 boolean carInside = ticketDAO.inside(vehicleRegNumber);
-                if (recurringVehicle) {
-                    System.out.println("Welcome back! As a recurring user of our parking lot, you'll benefit from a 5% discount.");
-                }
                 if(carInside) {
                     System.out.println("This vehicle is already in park");
                     return;
+                }
+                if (recurringVehicle) {
+                    System.out.println("Welcome back! As a recurring user of our parking lot, you'll benefit from a 5% discount.");
                 }
                 parkingSpot.setAvailable(false);
                 parkingSpotDAO.updateParking(parkingSpot);
@@ -107,11 +107,16 @@ public class ParkingService {
     public void processExitingVehicle(Date outTime) {
         try{
             String vehicleRegNumber = getVehicleRegNumber();
+            boolean carNotInside = !ticketDAO.inside(vehicleRegNumber);
+            if (carNotInside){
+                System.out.println("This vehicle is not inside");
+                return;
+            }
             Ticket ticket = ticketDAO.getTicket(vehicleRegNumber);
             ticket.setOutTime(outTime);
             FareCalculatorService fareCalculatorService = new FareCalculatorService(ticketDAO);
             fareCalculatorService.calculateFare(ticket);
-            boolean carNotInside = !ticketDAO.inside(vehicleRegNumber);
+
             if(ticketDAO.updateTicket(ticket)) {
                 ParkingSpot parkingSpot = ticket.getParkingSpot();
                 parkingSpot.setAvailable(true);

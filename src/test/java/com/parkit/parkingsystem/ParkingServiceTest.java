@@ -125,6 +125,7 @@ public class ParkingServiceTest {
             ticket.setVehicleRegNumber("ABCDEF");
 
             when(ticketDAO.getTicket(anyString())).thenReturn(ticket);
+            when(ticketDAO.inside("ABCDEF")).thenReturn(true);
 
         }
 
