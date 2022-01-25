@@ -1,30 +1,29 @@
 package com.parkit.parkingsystem.dao;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import com.parkit.parkingsystem.config.DataBaseConfig;
+import com.parkit.parkingsystem.constants.DBConstants;
+import com.parkit.parkingsystem.constants.ParkingType;
+import com.parkit.parkingsystem.integration.config.DataBaseTestConfig;
+import com.parkit.parkingsystem.model.ParkingSpot;
+import com.parkit.parkingsystem.model.Ticket;
+import com.parkit.parkingsystem.service.ParkingService;
+import com.parkit.parkingsystem.util.InputReaderUtil;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Date;
 
-import com.parkit.parkingsystem.constants.DBConstants;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import com.parkit.parkingsystem.model.ParkingSpot;
-import com.parkit.parkingsystem.constants.ParkingType;
-import com.parkit.parkingsystem.integration.config.DataBaseTestConfig;
-import com.parkit.parkingsystem.model.Ticket;
-import com.parkit.parkingsystem.service.ParkingService;
-import com.parkit.parkingsystem.util.InputReaderUtil;
-
-import javax.inject.Inject;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -39,36 +38,24 @@ class TicketDAOTest {
     @Mock
     private ResultSet resultSet;
 
-    @Mock
-    ParkingService parkingService;
-    @Mock
-    private static InputReaderUtil inputReaderUtil;
+
+
+
 
     Ticket ticket;
-    ParkingSpot parkingSpot;
 
 
-    @Mock
+    @InjectMocks
     private TicketDAO ticketDAO;
 
-    @Mock
-    private ParkingSpotDAO parkingSpotDAO;
 
     @BeforeEach
-    public void setUp() throws Exception {
-//        ticketDAO = new TicketDAO();
-        ticketDAO.dataBaseConfig = dataBaseTestConfig;
-//        parkingSpotDAO = new ParkingSpotDAO();
-        parkingSpotDAO.dataBaseConfig = dataBaseTestConfig;
-        when(dataBaseTestConfig.getConnection()).thenReturn(con);
-//        when(con.prepareStatement(anyString())).thenReturn(preparedStatement);
+    public void setUp() {
 
-        //on créé un ticket pour une voiture ABCDEF entrée et sortie.
+
         ticket = new Ticket();
-//        when(preparedStatement.executeQuery()).thenReturn(resultSet);
-//        when(resultSet.next()).thenReturn(true);
         ParkingSpot parkingSpot = new ParkingSpot(
-                parkingSpotDAO.getNextAvailableSlot(ParkingType.CAR),
+                1,
                 ParkingType.CAR, true);
         ticket.setParkingSpot(parkingSpot);
         ticket.setVehicleRegNumber("ABCDEF");
@@ -82,12 +69,7 @@ class TicketDAOTest {
 
 
     @Test
-    void savingValidTicket() throws SQLException, ClassNotFoundException {
-        // assertTrue(ticketDAO.saveTicket(ticket));
-
-        ticketDAO.dataBaseConfig = dataBaseTestConfig;
-        parkingSpotDAO.dataBaseConfig = dataBaseTestConfig;
-
+    void savingValidTicket() throws Exception {
         when(dataBaseTestConfig.getConnection()).thenReturn(con);
         when(con.prepareStatement(anyString())).thenReturn(preparedStatement);
         Connection connection = dataBaseTestConfig.getConnection();
@@ -99,44 +81,86 @@ class TicketDAOTest {
     }
 
     @Test
-    void savingAticket_and_recurrentClient() {
-        try {
-            when(preparedStatement.executeQuery()).thenReturn(resultSet);
-            when(resultSet.getInt("count")).thenReturn(2);
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    void saveANonValidTicket() throws Exception {
+        when(dataBaseTestConfig.getConnection()).thenReturn(con);
+        when(con.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(preparedStatement.execute()).thenReturn(false);
+        Connection connection = dataBaseTestConfig.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(DBConstants.SAVE_TICKET);
         ticketDAO.saveTicket(ticket);
 
 
+        assertThatThrownBy(() -> {
+            throw new Exception("Error fetching next available slot");
+        }).isInstanceOf(Exception.class);
     }
 
     @Test
-    void savingAticket_and_clientIsNotRecurrent() {
-        try {
-            when(preparedStatement.executeQuery()).thenReturn(resultSet);
-            when(resultSet.getInt("count")).thenReturn(0);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        ticketDAO.saveTicket(ticket);
+    void getNonValidTicket() throws Exception {
+        when(dataBaseTestConfig.getConnection()).thenReturn(null);
+//        when(con.prepareStatement(anyString())).thenReturn(preparedStatement);
+//        Connection connection = dataBaseTestConfig.getConnection();
+//        when(preparedStatement.execute()).thenReturn(false);
+//        when(resultSet.next()).thenReturn(true);
+//
+//        PreparedStatement preparedStatement = connection.prepareStatement(DBConstants.GET_TICKET);
+//        ResultSet resultSet = preparedStatement.executeQuery();
 
+        ticketDAO.getTicket("ABCDE");
+
+
+        assertThatThrownBy(() -> {
+            throw new Exception("Error fetching next available slot");
+        }).isInstanceOf(Exception.class);
     }
 
     @Test
-    void gettingATicket() throws SQLException {
+    void isRecurringVehicleException() throws Exception {
+        when(dataBaseTestConfig.getConnection()).thenReturn(con);
+        when(con.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
-        when(resultSet.next()).thenReturn(true);
-        when(resultSet.getInt(1)).thenReturn(1);
-        when(resultSet.getString(6)).thenReturn("CAR");
+        Connection connection = dataBaseTestConfig.getConnection();
+        PreparedStatement ps = connection.prepareStatement(DBConstants.RECURRING_VEHICLE);
+        ResultSet rs =  ps.executeQuery();
 
-        assertNotNull(ticketDAO.getTicket("ABCDEF").getId());
+        ticketDAO.isRecurringVehicle("adsd");
+
+        assertThatThrownBy(() -> {
+            throw new Exception("Error fetching next available slot");
+        }).isInstanceOf(Exception.class);
     }
 
     @Test
-    void updatingATicket() {
-        assertTrue(ticketDAO.updateTicket(ticket));
+    void insideException() throws Exception {
+        when(dataBaseTestConfig.getConnection()).thenReturn(con);
+        when(con.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        Connection connection = dataBaseTestConfig.getConnection();
+        PreparedStatement ps = connection.prepareStatement(DBConstants.INSIDE);
+        ResultSet rs =  ps.executeQuery();
+
+        ticketDAO.inside("adsd");
+
+
+        assertThatThrownBy(() -> {
+            throw new Exception("Error fetching next available slot");
+        }).isInstanceOf(Exception.class);
+    }
+
+    @Test
+    void updateNotValidTicket() throws Exception {
+        when(dataBaseTestConfig.getConnection()).thenReturn(con);
+        when(con.prepareStatement(anyString())).thenReturn(preparedStatement);
+        Connection connection = dataBaseTestConfig.getConnection();
+        when(preparedStatement.execute()).thenReturn(false);
+
+        PreparedStatement preparedStatement = connection.prepareStatement(DBConstants.UPDATE_TICKET);
+        ticketDAO.updateTicket(ticket);
+
+
+        assertThatThrownBy(() -> {
+            throw new Exception("Error saving ticket info");
+        }).isInstanceOf(Exception.class);
     }
 
 }

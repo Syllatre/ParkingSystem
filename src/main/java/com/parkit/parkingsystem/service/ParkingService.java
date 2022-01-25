@@ -111,6 +111,7 @@ public class ParkingService {
             ticket.setOutTime(outTime);
             FareCalculatorService fareCalculatorService = new FareCalculatorService(ticketDAO);
             fareCalculatorService.calculateFare(ticket);
+            boolean carNotInside = !ticketDAO.inside(vehicleRegNumber);
             if(ticketDAO.updateTicket(ticket)) {
                 ParkingSpot parkingSpot = ticket.getParkingSpot();
                 parkingSpot.setAvailable(true);

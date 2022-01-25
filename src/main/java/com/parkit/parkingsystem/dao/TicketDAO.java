@@ -18,9 +18,13 @@ public class TicketDAO {
 
     private static final Logger logger = LogManager.getLogger("TicketDAO");
 
-    public DataBaseConfig dataBaseConfig = new DataBaseConfig();
+    public DataBaseConfig dataBaseConfig;
 
-    public boolean saveTicket(Ticket ticket){
+    public TicketDAO(DataBaseConfig dataBaseConfig) {
+        this.dataBaseConfig = dataBaseConfig;
+    }
+
+    public boolean saveTicket(Ticket ticket) throws Exception {
         Connection con = null;
         PreparedStatement ps = null;
         try {
@@ -33,7 +37,7 @@ public class TicketDAO {
             ps.setTimestamp(5, (ticket.getOutTime() == null)?null: (new Timestamp(ticket.getOutTime().getTime())) );
             return ps.execute();
         }catch (Exception ex){
-            logger.error("Error fetching next available slot",ex);
+           logger.error("Error fetching next available slot",ex);
         }finally {
             dataBaseConfig.closeConnection(con);
             dataBaseConfig.closePreparedStatement(ps);

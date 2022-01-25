@@ -40,10 +40,8 @@ public class ParkingDataBaseIT {
 
     @BeforeAll
     private static void setUp() {
-        parkingSpotDAO = new ParkingSpotDAO();
-        parkingSpotDAO.dataBaseConfig = dataBaseTestConfig;
-        ticketDAO = new TicketDAO();
-        ticketDAO.dataBaseConfig = dataBaseTestConfig;
+        parkingSpotDAO = new ParkingSpotDAO(dataBaseTestConfig);
+        ticketDAO = new TicketDAO(dataBaseTestConfig);
         dataBasePrepareService = new DataBasePrepareService();
         fareCalculatorService = new FareCalculatorService(ticketDAO);
 
@@ -76,12 +74,15 @@ public class ParkingDataBaseIT {
 
     @Test
     public void testParkingLotExit() throws Exception {
-        testParkingACar();
         ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
+        parkingService.processIncomingVehicle();
+        int parkingPlace = parkingSpotDAO.getNextAvailableSlot(ParkingType.CAR);
+        ParkingSpot parkingSpot = new ParkingSpot(parkingPlace,ParkingType.CAR,true);
+        String vehicleRegNumber = inputReaderUtil.readVehicleRegistrationNumber();
+        parkingSpot.setAvailable(false);
         Date outTime = new Date();
         outTime.setTime( System.currentTimeMillis() + (  60 * 60 * 1000) );
         parkingService.processExitingVehicle(outTime);
-        String vehicleRegNumber = inputReaderUtil.readVehicleRegistrationNumber();
         assertNotEquals(null, ticketDAO.getTicket(vehicleRegNumber).getPrice());
         assertNotEquals(null ,ticketDAO.getTicket(vehicleRegNumber).getOutTime());
     }
@@ -89,21 +90,31 @@ public class ParkingDataBaseIT {
 
     @Test
     public void testRecurringVehicle() throws Exception {
-        testParkingACar();
-        testParkingLotExit();
-        testParkingACar();
-        testParkingLotExit();
+        ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
+        parkingService.processIncomingVehicle();
+        int parkingPlace = parkingSpotDAO.getNextAvailableSlot(ParkingType.CAR);
+        ParkingSpot parkingSpot = new ParkingSpot(parkingPlace,ParkingType.CAR,true);
         String vehicleRegNumber = inputReaderUtil.readVehicleRegistrationNumber();
-        Date inTime = new Date();
+        parkingSpot.setAvailable(false);
+        Date outTime = new Date();
+        outTime.setTime( System.currentTimeMillis() + (  60 * 60 * 1000) );
+        parkingService.processExitingVehicle(outTime);
+        ParkingService parkingService2 = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
+        parkingService.processIncomingVehicle();
+
         assertTrue(ticketDAO.isRecurringVehicle(vehicleRegNumber));
-        assertEquals(0.71,ticketDAO.getTicket(vehicleRegNumber).getPrice());
     }
 
     @Test
     public void vehicleAlreadyInside() throws Exception {
-        testParkingACar();
-        testParkingACar();
+        ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
+        parkingService.processIncomingVehicle();
+        int parkingPlace = parkingSpotDAO.getNextAvailableSlot(ParkingType.CAR);
+        ParkingSpot parkingSpot = new ParkingSpot(parkingPlace,ParkingType.CAR,true);
         String vehicleRegNumber = inputReaderUtil.readVehicleRegistrationNumber();
+        parkingSpot.setAvailable(false);
+        parkingService.processIncomingVehicle();
+
         assertTrue(ticketDAO.inside(vehicleRegNumber));
     }
 
