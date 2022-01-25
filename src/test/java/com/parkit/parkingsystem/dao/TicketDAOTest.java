@@ -95,24 +95,23 @@ class TicketDAOTest {
         }).isInstanceOf(Exception.class);
     }
 
-    @Test
-    void getNonValidTicket() throws Exception {
-        when(dataBaseTestConfig.getConnection()).thenReturn(null);
+//    @Test
+//    void getNonValidTicket() throws Exception {
 //        when(con.prepareStatement(anyString())).thenReturn(preparedStatement);
+//        when(preparedStatement.executeQuery()).thenReturn(resultSet);
 //        Connection connection = dataBaseTestConfig.getConnection();
-//        when(preparedStatement.execute()).thenReturn(false);
-//        when(resultSet.next()).thenReturn(true);
+//        PreparedStatement ps = connection.prepareStatement(DBConstants.GET_TICKET);
+//        ResultSet rs =  ps.executeQuery();
 //
-//        PreparedStatement preparedStatement = connection.prepareStatement(DBConstants.GET_TICKET);
-//        ResultSet resultSet = preparedStatement.executeQuery();
-
-        ticketDAO.getTicket("ABCDE");
-
-
-        assertThatThrownBy(() -> {
-            throw new Exception("Error fetching next available slot");
-        }).isInstanceOf(Exception.class);
-    }
+//
+//
+//        ticketDAO.getTicket("ABCDE");
+//
+//
+//        assertThatThrownBy(() -> {
+//            throw new Exception("Error fetching next available slot");
+//        }).isInstanceOf(Exception.class);
+//    }
 
     @Test
     void isRecurringVehicleException() throws Exception {

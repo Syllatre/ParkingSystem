@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.stream.Stream;
 
 import static junit.framework.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.Mockito.when;
 
@@ -85,6 +86,20 @@ public class ParkingDataBaseIT {
         parkingService.processExitingVehicle(outTime);
         assertNotEquals(null, ticketDAO.getTicket(vehicleRegNumber).getPrice());
         assertNotEquals(null ,ticketDAO.getTicket(vehicleRegNumber).getOutTime());
+    }
+    @Test
+    public void testExitVehicleNotInside() throws Exception {
+        ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
+        parkingService.processIncomingVehicle();
+        int parkingPlace = parkingSpotDAO.getNextAvailableSlot(ParkingType.CAR);
+        ParkingSpot parkingSpot = new ParkingSpot(parkingPlace,ParkingType.CAR,true);
+        String vehicleRegNumber = inputReaderUtil.readVehicleRegistrationNumber();
+        parkingSpot.setAvailable(false);
+        Date outTime = new Date();
+        outTime.setTime( System.currentTimeMillis() + (  60 * 60 * 1000) );
+        parkingService.processExitingVehicle(outTime);
+        parkingService.processExitingVehicle(outTime);
+        assertThat(ticketDAO.inside("ABCDEF")).isFalse();
     }
 
 
